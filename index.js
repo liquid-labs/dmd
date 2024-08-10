@@ -30,7 +30,9 @@ function dmd (templateData, options) {
 }
 
 dmd.async = function (templateData, options) {
+  console.error('options(a):', options) // DEBUG
   options = new DmdOptions(options)
+  console.error('options(b):', options) // DEBUG
   if (skipCache(options)) {
     return Promise.resolve(generate(templateData, options))
   } else {
@@ -79,7 +81,9 @@ function generate (templateData, options) {
   const inputOptions = Object.assign({}, options)
 
   templateData = arrayify(templateData)
+  console.error('options (c):', options) // DEBUG
   options = Object.assign(new DmdOptions(), options)
+  console.error('options (d):', options) // DEBUG
   options.plugin = arrayify(options.plugin)
   options._depth = 0
   options._indexDepth = 0

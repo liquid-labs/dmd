@@ -46,6 +46,7 @@ function inlineLinks (text, options) {
   if (text) {
     const links = ddata.parseLink(text)
     links.forEach(function (link) {
+      // console.error('link:', link, 'options:', options.data.root.options) // DEBUG
       const linked = ddata._link(link.url, options)
       if (link.caption === link.url) link.caption = linked.name
       if (linked.url) link.url = linked.url
