@@ -17,6 +17,7 @@ exports.tableHeadHtml = tableHeadHtml
 exports.tableRow = tableRow
 exports.deprecated = deprecated
 exports.groupBy = groupBy
+exports.groupGlobalsBy = groupGlobalsBy
 exports._groupBy = _groupBy
 exports._addGroup = _addGroup
 exports.add = add
@@ -170,6 +171,11 @@ function deprecated (options) {
 function groupBy (groupByFields, options) {
   groupByFields = arrayify(groupByFields)
   return handlebars.helpers.each(_groupChildren.call(this, groupByFields, options), options)
+}
+
+function groupGlobalsBy (groupByFields, options) {
+  groupByFields = arrayify(groupByFields)
+  return handlebars.helpers.each(_groupBy(ddata._globals(options), groupByFields), options)
 }
 
 function _addGroup (identifiers, groupByFields) {
