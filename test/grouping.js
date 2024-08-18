@@ -50,22 +50,22 @@ tom.test('_groupBy scope, cat', function () {
   ]
 
   const expected = [
-    { _title: 'global', level: 0 },
-    { _title: 'main', level: 1 },
+    { _title: 'global', level: 0, scope: 'global', kind: undefined, category: undefined },
+    { _title: 'main', level: 1, scope: 'global', kind: undefined, category: undefined },
     { name: 'aaa', scope: 'global', cat: 'main', level: 2 },
     { name: 'bbb', scope: 'global', cat: 'main', level: 2 },
     { name: 'ccc', scope: 'global', cat: 'main', level: 2 },
-    { _title: 'pain', level: 1 },
+    { _title: 'pain', level: 1, scope: 'global', kind: undefined, category: undefined },
     { name: 'ddd', scope: 'global', cat: 'pain', level: 2 },
-    { _title: 'waters', level: 0 },
-    { _title: 'pain', level: 1 },
+    { _title: 'waters', level: 0, scope: 'waters', kind: undefined, category: undefined },
+    { _title: 'pain', level: 1, scope: 'waters', kind: undefined, category: undefined },
     { name: 'eee', scope: 'waters', cat: 'pain', level: 2 },
     { name: 'fff', scope: 'waters', cat: 'pain', level: 2 },
     { name: 'ggg', scope: 'waters', cat: 'pain', level: 2 },
-    { _title: 'main', level: 0 },
+    { _title: 'main', level: 0, scope: undefined, kind: undefined, category: undefined },
     { name: 'hhh', cat: 'main', level: 1 },
     { name: 'iii', cat: 'main', level: 1 },
-    { _title: 'global', level: 0 },
+    { _title: 'global', level: 0, scope: 'global', kind: undefined, category: undefined },
     { name: 'jjj', scope: 'global', level: 1 }
   ]
 
@@ -99,7 +99,7 @@ tom.test('_groupBy skips if only one group, where there are subgroups', function
 
   const expected = [
     { name: 'aaa', scope: 'global', level: 0 },
-    { _title: 'yeah', level: 0 },
+    { _title: 'yeah', level: 0, scope: 'global', kind: undefined, category: undefined },
     { name: 'bbb', scope: 'global', cat: 'yeah', level: 1 },
     { name: 'ccc', scope: 'global', cat: 'yeah', level: 1 }
   ]
