@@ -35,10 +35,10 @@ tom.test('sorts globals according to sort fields', function () {
   const groupByFields = dmdOptions['group-by']
   const result = helpers.groupGlobalsBy(groupByFields, options)
   assert.deepEqual(result, [
-    { _title: 'foo', level: 0 },
+    { _title: 'foo', level: 0, scope: 'global', kind: undefined, category: 'foo' },
     { id: '1', category: 'foo', scope: 'global', level: 1 },
     { id: '2', category: 'foo', scope: 'global', level: 1 },
-    { _title: 'bar', level: 0 },
+    { _title: 'bar', level: 0, scope: 'global', kind: undefined, category: 'bar' },
     { id: '3', category: 'bar', scope: 'global', level: 1 },
     { id: '4', category: 'bar', scope: 'global', level: 1 },
     { id: '5', level: 0, scope: 'global' }
