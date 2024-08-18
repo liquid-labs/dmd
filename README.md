@@ -5,7 +5,13 @@
 [![Node.js CI](https://github.com/jsdoc2md/dmd/actions/workflows/node.js.yml/badge.svg)](https://github.com/jsdoc2md/dmd/actions/workflows/node.js.yml)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](https://github.com/feross/standard)
 
-# dmd
+# @liquid-labs/dmd
+
+This is a fork of the [dmd](https://github.com/jsdoc2md/dmd) which adds support for:
+
+- grouping globals,
+- clever links and monospace links, and
+- passes additional context when grouping identifiers.
 
 dmd (document with markdown) is the default output template for [jsdoc-to-markdown](https://github.com/jsdoc2md/jsdoc-to-markdown). It contains [handlebars](http://handlebarsjs.com) partials and helpers intended to transform [jsdoc-parse](https://github.com/jsdoc2md/jsdoc-parse) output into markdown API documentation.
 
@@ -47,5 +53,7 @@ I am a global variable
 * * *
 
 &copy; 2014-24 Lloyd Brookes \<75pound@gmail.com\>.
+
+Fork changes by Zane Rockenbaugh \<zane@liquid-labs.com\>
 
 Tested by [test-runner](https://github.com/test-runner-js/test-runner). Documented by [jsdoc-to-markdown](https://github.com/jsdoc2md/jsdoc-to-markdown).

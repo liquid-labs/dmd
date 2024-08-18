@@ -1,5 +1,5 @@
 {
-  "name": "dmd",
+  "name": "@liquid-labs/dmd",
   "author": "Lloyd Brookes <75pound@gmail.com>",
   "version": "6.2.3",
   "description": "The default output template for jsdoc-to-markdown",
@@ -22,7 +22,8 @@
     "partials"
   ],
   "scripts": {
-    "test": "test-runner test/*.js test/ddata/*.js test/helpers/*.js"
+    "test": "test-runner test/*.js test/ddata/*.js test/helpers/*.js",
+    "qa": "npm test"
   },
   "dependencies": {
     "array-back": "^6.2.2",
