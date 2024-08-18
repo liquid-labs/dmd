@@ -215,7 +215,10 @@ function _groupBy (identifiers, groupByFields) {
           inserts.push({
             index,
             _title: group,
-            level: level++
+            level: level++,
+            scope: identifier.scope,
+            kind: identifier.kind,
+            category: identifier.category
           })
         }
       })
@@ -227,7 +230,9 @@ function _groupBy (identifiers, groupByFields) {
 
   /* insert title items */
   inserts.reverse().forEach(function (insert) {
-    identifiers.splice(insert.index, 0, { _title: insert._title, level: insert.level })
+    const noIndexInsert = { ...insert }
+    delete noIndexInsert.index
+    identifiers.splice(insert.index, 0, noIndexInsert)
   })
   return identifiers
 }
