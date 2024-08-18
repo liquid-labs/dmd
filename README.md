@@ -7,11 +7,15 @@
 
 # @liquid-labs/dmd
 
-This is a fork of the [dmd](https://github.com/jsdoc2md/dmd) which adds support for:
+This is a fork of the [dmd](https://github.com/jsdoc2md/dmd). Because [jsdoc-to-markdown](https://github.com/jsdoc2md/jsdoc-to-markdown) hard codes the 'dmd' package, you must use our fork of that project, [@liquid-labs/jsdoc-to-markdown](https://github.com/liquid-labs/jsdoc-to-markdown) with this package.
 
-- grouping globals,
+This package adds the following features:
+
+- grouping global identifiers,
 - clever links and monospace links, and
 - passes additional context when grouping identifiers.
+
+This is all intended primarily for use with [dmd-readme-api](https://github.com/liquid-labs/dmd-readme-api), which is a plugin that further modifies the DMD template with a number of enhancements including support for groped global identifiers, links to source code, links from documentation back to indexes, and just generally a more compact, style.
 
 This package is being published because a number of my other projects rely on these changes. There are pull requests for all the changes and if/when they are incorporated into the original project, this one will be deprecated. On the other hand, if the changes are not adopted, then we will continue to maintain this fork.
 
