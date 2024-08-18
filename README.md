@@ -13,6 +13,8 @@ This is a fork of the [dmd](https://github.com/jsdoc2md/dmd) which adds support 
 - clever links and monospace links, and
 - passes additional context when grouping identifiers.
 
+This package is being published because a number of my other projects rely on these changes. There are pull requests for all the changes and if/when they are incorporated into the original project, this one will be deprecated. On the other hand, if the changes are not adopted, then we will continue to maintain this fork.
+
 dmd (document with markdown) is the default output template for [jsdoc-to-markdown](https://github.com/jsdoc2md/jsdoc-to-markdown). It contains [handlebars](http://handlebarsjs.com) partials and helpers intended to transform [jsdoc-parse](https://github.com/jsdoc2md/jsdoc-parse) output into markdown API documentation.
 
 For more documentation see the [jsdoc2md wiki](https://github.com/jsdoc2md/jsdoc-to-markdown/wiki).
