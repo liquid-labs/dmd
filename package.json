@@ -1,7 +1,7 @@
 {
   "name": "@liquid-labs/dmd",
   "author": "Lloyd Brookes <75pound@gmail.com>, Zane Rockenbaugh <zane@liquid-labs.com>",
-  "version": "6.2.4",
+  "version": "6.3.0",
   "description": "An enhanced output template for jsdoc-to-markdown",
   "license": "MIT",
   "repository": {
