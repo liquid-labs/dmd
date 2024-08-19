@@ -37,6 +37,7 @@ exports.indexChildren = indexChildren
 exports._link = _link
 
 /* helpers which return booleans */
+exports.hasMultipleIdentifiers = hasMultipleIdentifiers
 exports.isClass = isClass
 exports.isClassMember = isClassMember
 exports.isConstructor = isConstructor
@@ -372,6 +373,23 @@ function sig (options) {
   }
 
   return options.fn(this, { data })
+}
+
+/**
+ * @returns {boolean}
+ */
+function hasMultipleIdentifiers (ofType, options) {
+  return _identifiers(options).reduce((acc, i) => {
+    if (acc === true) {
+      return true
+    }
+    else if (acc === null) {
+      return i[ofType]
+    }
+    else if (acc !== i[ofType]) {
+      return true
+    }
+  }, null)
 }
 
 /**
