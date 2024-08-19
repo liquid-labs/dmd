@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jsdoc2md/dmd.git"
+    "url": "git+https://github.com/liquid-labs/dmd.git"
   },
   "keywords": [
     "documentation",
