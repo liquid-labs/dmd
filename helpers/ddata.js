@@ -2,11 +2,23 @@ const arrayify = require('array-back')
 const util = require('util')
 const handlebars = require('handlebars')
 const { marked } = require('marked')
-const objectGet = require('object-get')
-const where = require('test-value').where
-const flatten = require('reduce-flatten')
 const state = require('../lib/state')
 const urlRe = require('regex-repo').urlRe
+
+let malformedDataWarningIssued = false
+
+function isValidURL (url) {
+  try {
+    new URL(url)
+    return true
+  } catch (err) {
+    if (err.code === 'ERR_INVALID_URL') {
+      return false
+    } else {
+      throw err
+    }
+  }
+}
 
 /**
  * ddata is a collection of handlebars helpers for working with the documentation data output by [jsdoc-parse](https://github.com/75lb/jsdoc-parse).
@@ -267,7 +279,7 @@ function returnSig2 (options) {
       if (typeNames.length) {
         return options.fn({
           symbol: '⇒',
-          types: typeNames.reduce(flatten, [])
+          types: typeNames.flat()
         })
       } else {
         return options.fn({
@@ -337,7 +349,7 @@ function sig (options) {
           return name
         })
       if (typeNames.length) {
-        data.returnTypes = typeNames.reduce(flatten, [])
+        data.returnTypes = typeNames.flat()
       }
     } else if ((this.type || this.kind === 'namespace') && this.kind !== 'event') {
       data.returnSymbol = ':'
@@ -405,7 +417,7 @@ returns true if the parent of the current identifier is a class
 @static
 */
 function isClassMember (options) {
-  const parent = arrayify(options.data.root).find(where({ id: this.memberof }))
+  const parent = arrayify(options.data.root).find(i => i.id === this.memberof)
   if (parent) {
     return parent.kind === 'class'
   }
@@ -466,19 +478,18 @@ function _orphans (options) {
  */
 function _identifiers (options) {
   const query = {}
-
   for (const prop in options.hash) {
-    if (/^-/.test(prop)) {
-      query[prop.replace(/^-/, '!')] = options.hash[prop]
-    } else if (/^_/.test(prop)) {
-      query[prop.replace(/^_/, '')] = new RegExp(options.hash[prop])
-    } else {
-      query[prop] = options.hash[prop]
-    }
+    query[prop] = options.hash[prop]
   }
-  return arrayify(options.data.root).filter(where(query)).filter(function (doclet) {
-    return !doclet.ignore && (state.options.private ? true : doclet.access !== 'private')
-  })
+  return arrayify(options.data.root)
+    .filter(doclet => {
+      return Object.keys(query).every(prop => {
+        return doclet[prop] === query[prop]
+      })
+    })
+    .filter(function (doclet) {
+      return !doclet.ignore && (state.options.private ? true : doclet.access !== 'private')
+    })
 }
 
 /**
@@ -491,13 +502,25 @@ return the identifiers which are a `memberof` this one. Exclude externals withou
 */
 function _children (options) {
   if (!this.id) return []
+  if (this.id && this.memberof && this.id === this.memberof) {
+    if (!malformedDataWarningIssued) {
+      console.warn('Jsdoc data looks malformed. Typically, this can be fixed by ensuring the sourcecode file has a `@module tag`. ')
+      console.warn('Please see the "Document an ES2015 module" section in the wiki')
+      console.warn('https://github.com/jsdoc2md/jsdoc-to-markdown/wiki')
+      malformedDataWarningIssued = true
+    }
+    return []
+  }
   const min = options.hash.min
   delete options.hash.min
   options.hash.memberof = this.id
   let output = _identifiers(options)
-  output = output.filter(function (identifier) {
+  output = output.filter(identifier => {
     if (identifier.kind === 'external') {
       return identifier.description && identifier.description.length > 0
+    /* @hideconstructor support: https://github.com/jsdoc2md/dmd/issues/94 */
+    } else if (this.hideconstructor === true) {
+      return identifier.kind !== 'constructor'
     } else {
       return true
     }
@@ -520,10 +543,10 @@ function descendants (options) {
   const output = []
   function iterate (childrenList) {
     if (childrenList.length) {
-      childrenList.forEach(function (child) {
+      for (const child of childrenList) {
         output.push(child)
         iterate(_children.call(child, options))
-      })
+      }
     }
   }
   iterate(_children.call(this, options))
@@ -537,7 +560,7 @@ returns the exported identifier of this module
 @static
 */
 function exported (options) {
-  const exp = arrayify(options.data.root).find(where({ '!kind': 'module', id: this.id }))
+  const exp = arrayify(options.data.root).find(d => d.kind !== 'module' && d.id === this.id)
   return exp || this
 }
 
@@ -554,7 +577,7 @@ Returns the parent
 @static
 */
 function parentObject (options) {
-  return arrayify(options.data.root).find(where({ id: this.memberof }))
+  return arrayify(options.data.root).find(d => d.id === this.memberof)
 }
 
 /**
@@ -633,8 +656,7 @@ function methodSig () {
  * @returns {Array.<{original: string, caption: string, url: string, format: 'code'|'plain'}>}
  * @static
  */
-function parseLink (text, dmdOptions) {
-  dmdOptions = dmdOptions || {}
+function parseLink (text, dmdOptions = {}) {
   if (!text) return ''
   const results = []
   let matches = null
@@ -658,7 +680,7 @@ function parseLink (text, dmdOptions) {
       original: matches[0],
       caption: matches[3],
       url: matches[2],
-      format: matches[1] 
+      format: matches[1]
     })
     text = text.replace(matches[0], ' '.repeat(matches[0].length))
   }
@@ -686,13 +708,13 @@ function parseLink (text, dmdOptions) {
   results.forEach((result) => {
     const format = result.format
     if (format === undefined) {
-      result.format = format // if tag is @linkplain or @linkcode, then that determines the format
+      result.format = format || // if tag is @linkplain or @linkcode, then that determines the format
         // else, if 'clever-links' is true, then if the link is a URL, it's plain, otherwise code format
-        || (dmdOptions['clever-links'] && (urlRe.test(result.url) ? 'plain' : 'code'))
+        (dmdOptions['clever-links'] && (isValidURL(result.url) ? 'plain' : 'code')) ||
         // else, if 'monospace-links' is true, then all links are code format
-        || (dmdOptions['monospace-links'] && 'code')
+        (dmdOptions['monospace-links'] && 'code') ||
         // else, it's a plain
-        || 'plain'
+        'plain'
     }
   })
 
@@ -720,7 +742,7 @@ function parentName (options) {
   if (this.isExported) return ''
 
   if (this.memberof && this.kind !== 'constructor') {
-    const parent = arrayify(options.data.root).find(where({ id: this.memberof }))
+    const parent = arrayify(options.data.root).find(d => d.id === this.memberof)
     if (parent) {
       if (this.scope === 'instance') {
         const name = parent.typicalname || parent.name
@@ -738,85 +760,59 @@ function parentName (options) {
 
 /**
 returns a dmd option, e.g. "sort-by", "heading-depth" etc.
-@static
 */
 function option (name, options) {
-  return objectGet(options.data.root.options, name)
+  /* name could potentially be an object accessor like `memberIndex.minDescendants` */
+  const nameSplit = name.split('.')
+  if (nameSplit.length === 1) {
+    return options.data.root.options[name]
+  } else if (nameSplit.length === 2) {
+    return options.data.root.options[nameSplit[0]] && options.data.root.options[nameSplit[0]][nameSplit[1]]
+  } else {
+    throw new Error('Invalid option name: ' + name)
+  }
 }
 
-/**
-@static
-*/
 function optionEquals (name, value, options) {
   return options.data.root.options[name] === value
 }
 
-/**
-@static
-*/
 function optionSet (name, value, options) {
   options.data.root.options[name] = value
 }
 
-/**
-@static
-*/
 function optionIsSet (name, options) {
   return options.data.root.options[name] !== undefined
 }
 
-/**
-@static
-*/
 function stripNewlines (input) {
   if (input) return input.replace(/[\r\n]+/g, ' ')
 }
 
-/**
-@static
-*/
 function headingDepth (options) {
   return options.data.root.options._depth + (options.data.root.options['heading-depth'])
 }
 
-/**
-@static
-*/
 function depth (options) {
   return options.data.root.options._depth
 }
 
-/**
-@static
-*/
 function depthIncrement (options) {
   options.data.root.options._depth++
 }
 
-/**
-@static
-*/
 function depthDecrement (options) {
   options.data.root.options._depth--
 }
 
-/**
-@static
-*/
 function indexDepth (options) {
   return options.data.root.options._indexDepth
 }
 
-/**
-@static
-*/
 function indexDepthIncrement (options) {
   options.data.root.options._indexDepth++
 }
 
-/**
-@static
-*/
 function indexDepthDecrement (options) {
   options.data.root.options._indexDepth--
 }

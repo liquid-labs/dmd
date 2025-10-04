@@ -3,19 +3,15 @@ const arrayify = require('array-back')
 const handlebars = require('handlebars')
 const util = require('util')
 const commonSequence = require('common-sequence')
-const unique = require('reduce-unique')
-const without = require('reduce-without')
 
 /**
 A library of helpers used exclusively by dmd.. dmd also registers helpers from ddata.
-@module
 */
 exports.escape = escape
 exports.inlineLinks = inlineLinks
 exports.tableHead = tableHead
 exports.tableHeadHtml = tableHeadHtml
 exports.tableRow = tableRow
-exports.deprecated = deprecated
 exports.groupBy = groupBy
 exports.groupGlobalsBy = groupGlobalsBy
 exports._groupBy = _groupBy
@@ -37,7 +33,7 @@ Escape special markdown characters
 */
 function escape (input) {
   if (typeof input !== 'string') return null
-  return input.replace(/([\*|_])/g, '\\$1')
+  return input.replace(/([*|_])/g, '\\$1')
 }
 
 /**
@@ -107,9 +103,10 @@ function tableRow () {
   const options = args.pop()
   const cols = args
   let output = ''
+  let data
 
   if (options.data) {
-    var data = handlebars.createFrame(options.data)
+    data = handlebars.createFrame(options.data)
     cols.forEach(function (col, index) {
       const colNumber = index + 1
       data['col' + colNumber] = containsData(rows, col)
@@ -153,21 +150,6 @@ function tableHeadHtml () {
   return colHeaders
 }
 
-function deprecated (options) {
-  if (this.deprecated) {
-    if (ddata.optionEquals('no-gfm', true, options) || options.hash['no-gfm']) {
-      return '<del>' + options.fn(this) + '</del>'
-    } else {
-      return '~~' + options.fn(this) + '~~'
-    }
-  } else {
-    return options.fn(this)
-  }
-}
-
-/**
-
-*/
 function groupBy (groupByFields, options) {
   groupByFields = arrayify(groupByFields)
   return handlebars.helpers.each(_groupChildren.call(this, groupByFields, options), options)
@@ -200,14 +182,14 @@ function _groupBy (identifiers, groupByFields) {
   groupByFields = groupByFields.slice(0)
 
   groupByFields.forEach(function (group) {
-    const groupValues = identifiers
+    let groupValues = identifiers
       .filter(function (identifier) {
         /* exclude constructors from grouping.. re-implement to work off a `null` group value */
         return identifier.kind !== 'constructor'
       })
       .map(function (i) { return i[group] })
-      .reduce(unique, [])
-    if (groupValues.length <= 1) groupByFields = groupByFields.reduce(without(group), [])
+    groupValues = Array.from(new Set(groupValues)) // unique
+    if (groupValues.length <= 1) groupByFields = groupByFields.filter(g => g !== group)
   })
   identifiers = _addGroup(identifiers, groupByFields)
 
@@ -318,12 +300,13 @@ function examples (options) {
   if (this.examples) {
     return this.examples.reduce(function (prev, example) {
       const lines = example.split(/\r\n|\r|\n/)
+      let exampleLangSubtag
 
       /* Process @lang */
       const exampleLangOptions = ddata.option('example-lang', options)
       let matches = lines[0].match(/@lang\s+(\w+)\s*/)
       if (matches) {
-        var exampleLangSubtag = matches[1]
+        exampleLangSubtag = matches[1]
         lines[0] = lines[0].replace(matches[0], '')
         if (lines[0].length === 0) {
           lines.splice(0, 1)

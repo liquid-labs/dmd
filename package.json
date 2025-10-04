@@ -1,19 +1,20 @@
 {
   "name": "@liquid-labs/dmd",
   "author": "Lloyd Brookes <75pound@gmail.com>, Zane Rockenbaugh <zane@liquid-labs.com>",
-  "version": "6.3.1",
+  "version": "7.1.1",
   "description": "An enhanced output template for jsdoc-to-markdown",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/liquid-labs/dmd.git"
   },
+  "exports": "./index.js",
   "keywords": [
     "documentation",
     "markdown"
   ],
   "engines": {
-    "node": ">=12"
+    "node": ">=12.17"
   },
   "files": [
     "index.js",
@@ -22,35 +23,35 @@
     "partials"
   ],
   "scripts": {
-    "build": "",
-    "test": "test-runner test/*.js test/ddata/*.js test/helpers/*.js",
-    "qa": "npm test"
+    "test": "75lb-nature test-runner test/api.js test/grouping.js test/parseType.js test/plugin.js test/ddata/children.js test/ddata/globals.js test/ddata/linkTo.js test/ddata/list.js test/ddata/orphans.js test/ddata/parseLink.js test/ddata/return-sig.js test/ddata/type-link.js",
+    "partials": "node bin/generate-partial-cache.js > partials/partial-cache.js"
   },
   "dependencies": {
     "array-back": "^6.2.2",
-    "cache-point": "^2.0.0",
-    "common-sequence": "^2.0.2",
-    "file-set": "^4.0.2",
+    "cache-point": "^3.0.0",
+    "common-sequence": "^3.0.0",
+    "file-set": "^5.2.2",
     "handlebars": "^4.7.8",
     "marked": "^4.3.0",
-    "object-get": "^2.1.1",
-    "reduce-flatten": "^3.0.1",
-    "reduce-unique": "^2.0.1",
-    "reduce-without": "^1.0.1",
-    "regex-repo": "^5.0.0",
-    "test-value": "^3.0.0",
-    "walk-back": "^5.1.0"
+    "regex-repo": "^5.0.1",
+    "walk-back": "^5.1.1"
   },
   "devDependencies": {
-    "dmd-plugin-example": "^0.1.0",
-    "mock-require": "^3.0.3",
-    "test-runner": "^0.10.1"
+    "dmd-plugin-example": "^0.1.0"
+  },
+  "peerDependencies": {
+    "@75lb/nature": "^0.1.10"
+  },
+  "peerDependenciesMeta": {
+    "@75lb/nature": {
+      "optional": true
+    }
   },
   "standard": {
     "ignore": [
-      "example",
       "test/fixture",
-      "test/overrides"
+      "test/overrides",
+      "tmp"
     ]
   }
 }

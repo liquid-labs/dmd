@@ -1,8 +1,7 @@
-const Tom = require('test-runner').Tom
-const dmd = require('../')
+const dmd = require('dmd')
 const a = require('assert').strict
 
-const tom = module.exports = new Tom()
+const [test, only, skip] = [new Map(), new Map(), new Map()]
 
 const fixture = [{
   id: 'someclass',
@@ -12,37 +11,52 @@ const fixture = [{
   description: 'is a class'
 }]
 
-tom.test('dmd() returns correct data', function () {
-  const result = dmd(fixture)
+test.set('dmd.async() returns correct data', async function () {
+  const result = await dmd(fixture)
   a.ok(/is a class/.test(result))
 })
 
-tom.test('dmd() again to exercise the cache', function () {
-  const result = dmd(fixture)
+test.set('dmd.async() again to exercise the cache', async function () {
+  const result = await dmd(fixture)
   a.ok(/is a class/.test(result))
 })
 
-tom.test('dmd({ noCache }) returns correct data', function () {
+test.set('dmd.async({ noCache }) returns correct data', async function () {
   const options = { noCache: true }
-  const result = dmd(fixture, options)
+  const result = await dmd(fixture, options)
   a.ok(/is a class/.test(result))
 })
 
-tom.test('dmd.async() returns correct data', function () {
-  return dmd.async(fixture).then(function (result) {
-    a.ok(/is a class/.test(result))
-  })
+test.set('Dmd issue #89 - Max callstack size exceeded bug', async function () {
+  const templateData = [
+    {
+      id: 'Foo',
+      longname: 'Foo',
+      name: 'Foo',
+      kind: 'class',
+      scope: 'global',
+      memberof: 'Foo',
+      thisvalue: undefined,
+      meta: {
+        lineno: 2,
+        filename: 'foo.js',
+        path: '/Users/lloyd/Documents/jsdoc2md/dmd/tmp/issue-89'
+      },
+      order: 0
+    }
+  ]
+  const options = {
+    files: ['foo.js'],
+    template: '{{#class name="Foo"}}{{>docs}}{{/class}}\n',
+    noCache: true
+  }
+  a.doesNotReject(() => dmd(templateData, options))
 })
 
-tom.test('dmd.async() again to exercise the cache', function () {
-  return dmd.async(fixture).then(function (result) {
-    a.ok(/is a class/.test(result))
-  })
+test.set('dmd.async({ noCache }) with custom line endings', async function () {
+  const options = { noCache: true, EOL: 'win32' }
+  const result = await dmd(fixture, options)
+  a.equal(result, '<a name="someclass"></a>\r\n\r\n## someclass\r\nis a class\r\n\r\n')
 })
 
-tom.test('dmd.async({ noCache }) returns correct data', function () {
-  const options = { noCache: true }
-  return dmd.async(fixture, options).then(function (result) {
-    a.ok(/is a class/.test(result))
-  })
-})
+module.exports = { test, only, skip }
